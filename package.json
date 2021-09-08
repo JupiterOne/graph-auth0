@@ -1,6 +1,6 @@
 {
   "name": "@jupiterone/graph-auth0",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A JupiterOne Integration for https://auth0.com/",
   "license": "MPL-2.0",
   "main": "dist/index.js",
@@ -22,7 +22,7 @@
     "test:env": "LOAD_ENV=1 yarn test",
     "test:ci": "yarn lint && yarn type-check && yarn test",
     "build": "tsc -p tsconfig.dist.json --declaration",
-    "prepush": "yarn lint && yarn type-check && jest --changedSince master",
+    "prepush": "yarn lint && yarn type-check && jest --changedSince main",
     "prepack": "yarn build"
   },
   "dependencies": {
