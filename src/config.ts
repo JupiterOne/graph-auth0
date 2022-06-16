@@ -78,18 +78,14 @@ export async function validateInvocation(
     );
   }
 
-  //checks for domain
+  //domain should not have https:// prepended
   if (/https?:\/\//.test(config.domain)) {
-    throw new IntegrationValidationError(
-      'Config {domain} should not have https:// prepended',
-    );
+    config.domain = config.domain.substr(8);
   }
 
-  //checks for audience
+  //audience must have https:// prepended
   if (!/https?:\/\//.test(config.audience)) {
-    throw new IntegrationValidationError(
-      'Config {audience} must have https:// prepended',
-    );
+    config.audience = 'https://' + config.audience;
   }
 
   if (!config.audience.match(/auth0.com/)) {
@@ -98,11 +94,10 @@ export async function validateInvocation(
     );
   }
 
+  //audience requires trailing slash
   const finalChar = config.audience[config.audience.length - 1];
   if (!(finalChar === '/')) {
-    throw new IntegrationValidationError(
-      'Problem with config {audience}. Trailing slash required.',
-    );
+    config.audience = config.audience + '/';
   }
 
   const apiClient = createAPIClient(config);
