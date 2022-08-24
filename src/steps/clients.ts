@@ -34,7 +34,7 @@ export async function fetchClients({
     //see schema in types/clients.ts for more on what these fields mean
 
     const clientEntity = await jobState.addEntity(
-      createClientEntity(client, accountEntity.webLink!)
+      createClientEntity(client, accountEntity.webLink!),
     );
 
     await jobState.addRelationship(

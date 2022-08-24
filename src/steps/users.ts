@@ -25,7 +25,7 @@ export async function fetchUsers({
     delete user.app_metadata;
 
     const userEntity = await jobState.addEntity(
-      createUserEntity(user, accountEntity.webLink!)
+      createUserEntity(user, accountEntity.webLink!),
     );
 
     await jobState.addRelationship(
