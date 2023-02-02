@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Config variables `domain` and `audience` now automatically fix common mistakes
+  where possible, increasing integration robustness.
+
 ## 0.2.0 - 2021-09-08
 
 ### Added
