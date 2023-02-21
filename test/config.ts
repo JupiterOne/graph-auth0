@@ -1,5 +1,8 @@
+import { IntegrationInvocationConfig } from '@jupiterone/integration-sdk-core';
+import { StepTestConfig } from '@jupiterone/integration-sdk-testing';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { invocationConfig } from '../src';
 import { IntegrationConfig } from '../src/config';
 
 if (process.env.LOAD_ENV) {
@@ -19,3 +22,11 @@ export const integrationConfig: IntegrationConfig = {
   domain: process.env.DOMAIN || DEFAULT_DOMAIN,
   audience: process.env.AUDIENCE || DEFAULT_AUDIENCE,
 };
+
+export function buildStepTestConfigForStep(stepId: string): StepTestConfig {
+  return {
+    stepId,
+    instanceConfig: integrationConfig,
+    invocationConfig: invocationConfig as IntegrationInvocationConfig,
+  };
+}

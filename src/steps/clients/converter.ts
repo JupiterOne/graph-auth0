@@ -2,50 +2,8 @@ import {
   createIntegrationEntity,
   Entity,
 } from '@jupiterone/integration-sdk-core';
-import { Auth0Client } from '../types/clients';
-import { Auth0User } from '../types/users';
-
-export function createUserEntity(
-  user: Auth0User,
-  accountWeblink: string,
-): Entity {
-  //weblink uses the user_id, but user_id has the pipe '|' in it,
-  //and the SDK doesn't like it for validating URI format, so converting
-  //%7C is '|'
-  const weblink =
-    accountWeblink + 'users/auth0%7C' + user.user_id?.substring(6);
-  return createIntegrationEntity({
-    entityData: {
-      source: user,
-      assign: {
-        _key: user.user_id,
-        _type: 'auth0_user',
-        _class: 'User',
-        name: user.name,
-        displayName: user.name,
-        username: user.username || '',
-        nickname: user.nickname,
-        email: user.email,
-        webLink: weblink,
-        userId: user.user_id,
-        emailVerified: user.email_verified,
-        phoneNumber: user.phone_number,
-        phoneVerified: user.phone_verified,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at,
-        identities: JSON.stringify(user.identities), //array of objects
-        picture: user.picture, //url
-        multifactor: user.multifactor, //string[]
-        lastIp: user.last_ip,
-        lastLogin: user.last_login,
-        loginsCount: user.logins_count,
-        blocked: user.blocked,
-        givenName: user.given_name,
-        familyName: user.family_name,
-      },
-    },
-  });
-}
+import { Entities } from '../constants';
+import { Auth0Client } from '../../types/clients';
 
 export function createClientEntity(
   client: Auth0Client,
@@ -56,10 +14,9 @@ export function createClientEntity(
       source: client,
       assign: {
         _key: client.client_id,
-        _type: 'auth0_client',
-        _class: 'Application',
+        _type: Entities.CLIENT._type,
+        _class: Entities.CLIENT._class,
         name: client.name,
-        displayName: client.name,
         webLink:
           accountWeblink + 'applications/' + client.client_id + '/settings',
         clientId: client.client_id,

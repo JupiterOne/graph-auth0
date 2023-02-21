@@ -7,7 +7,7 @@ export interface Auth0UserIdentity {
 
 //schema per https://auth0.com/docs/api/management/v2/#!/Users/get_users
 export interface Auth0User {
-  user_id?: string;
+  user_id: string;
   email?: string;
   email_verified?: boolean;
   username?: string;
