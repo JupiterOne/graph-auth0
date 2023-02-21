@@ -7,7 +7,7 @@ import {
 
 export { Recording };
 
-export function setupAuth0Recording(
+export function setupProjectRecording(
   input: Omit<SetupRecordingInput, 'mutateEntry'>,
 ): Recording {
   return setupRecording({
@@ -16,6 +16,13 @@ export function setupAuth0Recording(
     redactedResponseHeaders: ['set-cookie'],
     mutateEntry: (entry) => {
       redact(entry);
+    },
+    options: {
+      matchRequestsBy: {
+        url: {
+          hostname: false,
+        },
+      },
     },
   });
 }
