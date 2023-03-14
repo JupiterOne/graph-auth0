@@ -100,15 +100,15 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources     | Entity `_type`  | Entity `_class` |
-| ------------- | --------------- | --------------- |
-| Auth0 Account | `auth0_account` | `Account`       |
-| Auth0 Client  | `auth0_client`  | `Application`   |
-| User          | `auth0_user`    | `User`          |
+| Resources | Entity `_type`  | Entity `_class` |
+| --------- | --------------- | --------------- |
+| Account   | `auth0_account` | `Account`       |
+| Client    | `auth0_client`  | `Application`   |
+| User      | `auth0_user`    | `User`          |
 
 ### Relationships
 
-The following relationships are created/mapped:
+The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |

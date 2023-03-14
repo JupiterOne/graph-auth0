@@ -4,11 +4,11 @@ import {
   IntegrationStepExecutionContext,
 } from '@jupiterone/integration-sdk-core';
 
-import { IntegrationConfig } from '../config';
-import { getAcctWeblink } from '../util/getAcctWeblink';
+import { IntegrationConfig } from '../../config';
+import { getAcctWeblink } from '../../util/getAcctWeblink';
+import { Entities, IntegrationSteps } from '../constants';
 
 export const DATA_ACCOUNT_ENTITY = 'DATA_ACCOUNT_ENTITY';
-export const ACCOUNT_ENTITY_TYPE = 'auth0_account';
 
 export async function fetchAccountDetails({
   instance,
@@ -24,10 +24,9 @@ export async function fetchAccountDetails({
         },
         assign: {
           _key: `auth0-account:${instance.id}`,
-          _type: ACCOUNT_ENTITY_TYPE,
+          _type: Entities.ACCOUNT._type,
           _class: 'Account',
           name: 'Auth0 Account',
-          displayName: 'Auth0 Account',
           webLink: webLink,
         },
       },
@@ -39,15 +38,9 @@ export async function fetchAccountDetails({
 
 export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: 'fetch-account',
+    id: IntegrationSteps.ACCOUNT,
     name: 'Fetch Account Details',
-    entities: [
-      {
-        resourceName: 'Auth0 Account',
-        _type: ACCOUNT_ENTITY_TYPE,
-        _class: 'Account',
-      },
-    ],
+    entities: [Entities.ACCOUNT],
     relationships: [],
     dependsOn: [],
     executionHandler: fetchAccountDetails,

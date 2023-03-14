@@ -92,7 +92,11 @@ export async function validateInvocation(
     );
   }
 
-  if (!config.audience.match(/auth0.com/)) {
+  if (
+    !config.audience.match(
+      /^https:\/\/[A-Za-z0-9-]*[.][A-Za-z0-9-]*[.]auth0[.]com\/api\/v2\/$/,
+    )
+  ) {
     throw new IntegrationValidationError(
       'Problem with config {audience}. Should be a subdomain of auth0.com.',
     );
