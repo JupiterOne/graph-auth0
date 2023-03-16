@@ -1,12 +1,15 @@
 const ManagementClient = require('auth0').ManagementClient;
-const jwtDecode = require('jwt-decode');
+import jwtDecode from 'jwt-decode';
 
-import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
+import {
+  IntegrationProviderAuthenticationError,
+  IntegrationProviderAPIError,
+} from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './config';
 import { Auth0ManagementClient } from './types/managementClient';
 import { Auth0User, Auth0UsersIncludeTotal } from './types/users';
-import { Auth0Client } from './types/clients';
+import { Auth0Client, Auth0JwtPayload } from './types/clients';
 import { getAcctWeblink } from './util/getAcctWeblink';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
@@ -45,10 +48,10 @@ export class APIClient {
         statusText: err.statusText,
       });
     }
-    this.verifyScopes(jwtDecode(token).scope);
+    this.verifyScopes(jwtDecode<Auth0JwtPayload>(token)?.scope || '');
   }
 
-  private verifyScopes(scopeString) {
+  private verifyScopes(scopeString: string = '') {
     const missingScopes: string[] = [];
     if (!/read:users/.test(scopeString)) {
       missingScopes.push('read:users');
@@ -120,14 +123,25 @@ export class APIClient {
     //see Users comments for API limitations, though they are unlikely to be a problem here
     let appCount: number = 1;
     let pageNum: number = 0;
+
+    let clients: Auth0Client[];
+
     while (appCount > 0) {
       const params = {
         per_page: 100,
         page: pageNum,
       };
-      const clients: Auth0Client[] = await this.managementClient.getClients(
-        params,
-      );
+
+      try {
+        clients = await this.managementClient.getClients(params);
+      } catch (err) {
+        throw new IntegrationProviderAPIError({
+          endpoint: '[getClients]: ' + err?.requestInfo?.url,
+          status: err?.statusCode,
+          statusText: err?.message,
+        });
+      }
+
       appCount = clients.length;
       pageNum = pageNum + 1;
       for (const client of clients) {
@@ -186,9 +200,16 @@ export class APIClient {
       q: queryString,
       include_totals: true,
     };
-    const reply: Auth0UsersIncludeTotal = await this.managementClient.getUsers(
-      params,
-    );
+    let reply: Auth0UsersIncludeTotal;
+    try {
+      reply = await this.managementClient.getUsers(params);
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        endpoint: '[getUsers]: ' + err?.requestInfo?.url,
+        status: err?.statusCode,
+        statusText: err?.message,
+      });
+    }
     const total = reply.total;
     if (total < tooManyUsers) {
       //execute what you got and then go get the rest of the pages
@@ -204,9 +225,8 @@ export class APIClient {
           q: queryString,
           include_totals: true,
         };
-        const response: Auth0UsersIncludeTotal = await this.managementClient.getUsers(
-          localParams,
-        );
+        const response: Auth0UsersIncludeTotal =
+          await this.managementClient.getUsers(localParams);
         for (const user of response.users) {
           await iteratee(user);
         }

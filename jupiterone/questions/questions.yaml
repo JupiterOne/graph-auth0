@@ -1,0 +1,4 @@
+---
+sourceId: managed:auth0
+integrationDefinitionId: '${integration_definition_id}'
+questions: []

@@ -10,14 +10,14 @@ import {
 } from '@jupiterone/integration-sdk-core';
 
 import { createAPIClient } from '../client';
-import { createUserEntity } from '../converters';
+import { createUserEntity } from './users/converter';
 import { DATA_ACCOUNT_ENTITY } from './account';
 import { IntegrationConfig } from '../config';
 import { fetchUsers } from './users';
 import { fetchAccountDetails } from './account';
 import { integrationConfig } from '../../test/config';
 import { fetchClients } from './clients';
-import { setupAuth0Recording } from '../../test/recording';
+import { setupProjectRecording } from '../../test/recording';
 
 let recording: Recording;
 
@@ -26,7 +26,7 @@ afterEach(async () => {
 });
 
 test('should collect data', async () => {
-  recording = setupAuth0Recording({
+  recording = setupProjectRecording({
     directory: __dirname,
     name: 'steps',
   });
@@ -117,7 +117,7 @@ test('should collect data', async () => {
 });
 
 test('should throw error with excessive recursion', async () => {
-  recording = setupAuth0Recording({
+  recording = setupProjectRecording({
     directory: __dirname,
     name: 'userRecursionExcess',
   });
@@ -143,7 +143,7 @@ test('should get both users with recursion usersPerPage=1', async () => {
   //this tests the pagination function of the recursive user fetch.
   //by default, the provider API sets usersPerPage=50.
   //by default, our code sets it to the API max = 100.
-  recording = setupAuth0Recording({
+  recording = setupProjectRecording({
     directory: __dirname,
     name: 'userRecursionPagination',
   });
@@ -182,7 +182,7 @@ test('should get both users with recursion usersPerPage=1', async () => {
 test('should get both users with recursion tooManyUsers=2', async () => {
   //this tests the ability of the recursion to recurse when tooManyUsers is reached,
   //which indicates that the provider API is truncating results. Normally that is 1000.
-  recording = setupAuth0Recording({
+  recording = setupProjectRecording({
     directory: __dirname,
     name: 'userRecursionRecursion',
   });
@@ -215,5 +215,6 @@ test('should get both users with recursion tooManyUsers=2', async () => {
   const users = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('User'),
   );
-  expect(users.length).toEqual(2);
+  // account we used has only one user
+  expect(users.length).toEqual(1);
 });

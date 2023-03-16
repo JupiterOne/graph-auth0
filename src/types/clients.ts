@@ -1,6 +1,10 @@
+import { JwtPayload } from 'jwt-decode';
+
 // Client refers to an application that Auth0 supports
 // For the class that we use to talk to the management API, see managementClient.ts
 //schema per https://auth0.com/docs/api/management/v2/#!/Clients/get_clients
+
+export type Auth0JwtPayload = JwtPayload & { scope?: string };
 
 export interface ClientsResponseJwtConfiguration {
   lifetime_in_seconds?: number;
@@ -26,7 +30,7 @@ export interface ClientsResponseRefreshToken {
 }
 
 export interface Auth0Client {
-  client_id?: string;
+  client_id: string;
   tenant?: string; //name of the tenant this client belongs to
   name?: string; //min 1 char, does not allow < or > in name
   description?: string; //max length: 140 characters

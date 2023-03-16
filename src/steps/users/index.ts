@@ -6,10 +6,11 @@ import {
   RelationshipClass,
 } from '@jupiterone/integration-sdk-core';
 
-import { createAPIClient } from '../client';
-import { IntegrationConfig } from '../config';
-import { createUserEntity } from '../converters';
-import { DATA_ACCOUNT_ENTITY } from './account';
+import { createAPIClient } from '../../client';
+import { IntegrationConfig } from '../../config';
+import { createUserEntity } from './converter';
+import { DATA_ACCOUNT_ENTITY } from '../account';
+import { Entities, IntegrationSteps, Relationships } from '../constants';
 
 export async function fetchUsers({
   instance,
@@ -28,36 +29,25 @@ export async function fetchUsers({
       createUserEntity(user, accountEntity.webLink!),
     );
 
-    await jobState.addRelationship(
-      createDirectRelationship({
-        _class: RelationshipClass.HAS,
-        from: accountEntity,
-        to: userEntity,
-      }),
-    );
+    if (accountEntity && userEntity) {
+      await jobState.addRelationship(
+        createDirectRelationship({
+          _class: RelationshipClass.HAS,
+          from: accountEntity,
+          to: userEntity,
+        }),
+      );
+    }
   });
 }
 
 export const userSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: 'fetch-users',
+    id: IntegrationSteps.USERS,
     name: 'Fetch Users',
-    entities: [
-      {
-        resourceName: 'User',
-        _type: 'auth0_user',
-        _class: 'User',
-      },
-    ],
-    relationships: [
-      {
-        _type: 'auth0_account_has_user',
-        _class: RelationshipClass.HAS,
-        sourceType: 'auth0_account',
-        targetType: 'auth0_user',
-      },
-    ],
-    dependsOn: ['fetch-account'],
+    entities: [Entities.USER],
+    relationships: [Relationships.ACCOUNT_HAS_USER],
+    dependsOn: [IntegrationSteps.ACCOUNT],
     executionHandler: fetchUsers,
   },
 ];
