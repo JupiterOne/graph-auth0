@@ -19,6 +19,12 @@ import { integrationConfig } from '../../test/config';
 import { fetchClients } from './clients';
 import { setupAuth0Recording } from '../../test/recording';
 
+const logger = {
+  info: () => {
+    // @noop
+  },
+};
+
 let recording: Recording;
 
 afterEach(async () => {
@@ -132,10 +138,10 @@ test('should throw error with excessive recursion', async () => {
     delete user.user_metadata;
   };
   await expect(
-    apiClient.recursiveUserIterateeProcessor(iteratee, 4),
+    apiClient.recursiveUserIterateeProcessor(logger, iteratee, 4),
   ).rejects.toThrow(Error);
   await expect(
-    apiClient.recursiveUserIterateeProcessor(iteratee, 0, '', 1, 100),
+    apiClient.recursiveUserIterateeProcessor(logger, iteratee, 0, '', 1, 100),
   ).rejects.toThrow(Error);
 });
 
@@ -172,7 +178,14 @@ test('should get both users with recursion usersPerPage=1', async () => {
     );
   };
 
-  await apiClient.recursiveUserIterateeProcessor(iteratee, 0, '', 1000, 1);
+  await apiClient.recursiveUserIterateeProcessor(
+    logger,
+    iteratee,
+    0,
+    '',
+    1000,
+    1,
+  );
   const users = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('User'),
   );
@@ -211,7 +224,14 @@ test('should get both users with recursion tooManyUsers=2', async () => {
     );
   };
 
-  await apiClient.recursiveUserIterateeProcessor(iteratee, 0, '', 2, 100);
+  await apiClient.recursiveUserIterateeProcessor(
+    logger,
+    iteratee,
+    0,
+    '',
+    2,
+    100,
+  );
   const users = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('User'),
   );
