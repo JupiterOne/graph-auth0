@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## 0.2.2 2023-09-13
+
+### Added
+
+- Debug logs
+
 ## 0.2.0 - 2021-09-08
 
 ### Added
