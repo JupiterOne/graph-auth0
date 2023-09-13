@@ -74,6 +74,7 @@ export class APIClient {
    * @param iteratee receives each resource to produce entities/relationships
    */
   public async iterateUsers(
+    logger,
     iteratee: ResourceIteratee<Auth0User>,
   ): Promise<void> {
     //Auth0 sets the per_page max at 100 (default is 50)
@@ -106,7 +107,7 @@ export class APIClient {
     // Client params syntax is here:
     //https://auth0.github.io/node-auth0/module-management.ManagementClient.html#getUsers
 
-    await this.recursiveUserIterateeProcessor(iteratee);
+    await this.recursiveUserIterateeProcessor(logger, iteratee);
   }
 
   /**
@@ -137,6 +138,7 @@ export class APIClient {
   }
 
   public async recursiveUserIterateeProcessor(
+    logger,
     iteratee: ResourceIteratee<Auth0User>,
     depthLevel: number = 0,
     tailString: string = '',
@@ -189,9 +191,19 @@ export class APIClient {
     const reply: Auth0UsersIncludeTotal = await this.managementClient.getUsers(
       params,
     );
+    logger.info(
+      'reply:',
+      JSON.stringify({
+        start: reply.start,
+        limit: reply.limit,
+        length: reply.length,
+        total: reply.total,
+      }),
+    );
     const total = reply.total;
+
     if (total < tooManyUsers) {
-      //execute what you got and then go get the rest of the pages
+      // execute what you got and then go get the rest of the pages
       for (const user of reply.users) {
         await iteratee(user);
       }
@@ -214,10 +226,11 @@ export class APIClient {
         pageNum = pageNum + 1;
       }
     } else {
-      //recurse
+      // recurse
       for (const tail in tails) {
         const fulltail: string = tails[tail].concat(tailString);
         await this.recursiveUserIterateeProcessor(
+          logger,
           iteratee,
           depthLevel + 1,
           fulltail,

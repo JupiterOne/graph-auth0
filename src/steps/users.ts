@@ -14,12 +14,13 @@ import { DATA_ACCOUNT_ENTITY } from './account';
 export async function fetchUsers({
   instance,
   jobState,
+  logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
-  await apiClient.iterateUsers(async (user) => {
+  await apiClient.iterateUsers(logger, async (user) => {
     //unspecified content fields to delete for safety
     delete user.user_metadata;
     delete user.app_metadata;
