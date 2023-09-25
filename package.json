@@ -26,15 +26,16 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "auth0": "^2.36.1",
-    "jwt-decode": "^3.1.2"
+    "auth0": "^4.0.1",
+    "jwt-decode": "^3.1.2",
+    "node-fetch": "^2"
   },
   "peerDependencies": {
-    "@jupiterone/integration-sdk-core": "^6.18.0"
+    "@jupiterone/integration-sdk-core": "^10.7.0"
   },
   "devDependencies": {
-    "@jupiterone/integration-sdk-core": "^6.18.0",
-    "@jupiterone/integration-sdk-dev-tools": "^6.18.0",
-    "@jupiterone/integration-sdk-testing": "^6.18.0"
+    "@jupiterone/integration-sdk-core": "^10.7.0",
+    "@jupiterone/integration-sdk-dev-tools": "^10.7.0",
+    "@jupiterone/integration-sdk-testing": "^10.7.0"
   }
 }

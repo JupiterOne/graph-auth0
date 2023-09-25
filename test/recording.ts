@@ -12,6 +12,16 @@ export function setupAuth0Recording(
 ): Recording {
   return setupRecording({
     ...input,
+    options: {
+      mode: process.env.LOAD_ENV ? 'record' : 'replay',
+      matchRequestsBy: {
+        url: {
+          query: true,
+          hostname: true,
+          pathname: true,
+        },
+      },
+    },
     redactedRequestHeaders: ['Authorization', 'auth0-client'],
     redactedResponseHeaders: ['set-cookie'],
     mutateEntry: (entry) => {

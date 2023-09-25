@@ -1,13 +1,10 @@
-const ManagementClient = require('auth0').ManagementClient;
-const jwtDecode = require('jwt-decode');
-
-import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
+import { ManagementClient } from 'auth0';
 
 import { IntegrationConfig } from './config';
-import { Auth0ManagementClient } from './types/managementClient';
-import { Auth0User, Auth0UsersIncludeTotal } from './types/users';
+import { Auth0User } from './types/users';
 import { Auth0Client } from './types/clients';
-import { getAcctWeblink } from './util/getAcctWeblink';
+import { IntegrationLogger } from '@jupiterone/integration-sdk-core';
+import fetch from 'node-fetch';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -20,52 +17,24 @@ export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
  * resources.
  */
 export class APIClient {
-  managementClient: Auth0ManagementClient;
-  //retrieves a token automatically and applies it to subsequent requests
-  //token expiration is configured on the auth0 site; default is 24 hours
-  constructor(readonly config: IntegrationConfig) {
+  managementClient: ManagementClient;
+  logger: IntegrationLogger;
+  // retrieves a token automatically and applies it to subsequent requests
+  // token expiration is configured on the auth0 site; default is 24 hours
+
+  constructor(
+    readonly config: IntegrationConfig,
+    logger: IntegrationLogger,
+  ) {
     this.managementClient = new ManagementClient({
       domain: config.domain,
       clientId: config.clientId,
       clientSecret: config.clientSecret,
       audience: config.audience,
+      fetch: fetch,
     });
-  }
 
-  public async verifyAuthentication(): Promise<void> {
-    //lightweight authen check
-    let token: string = '';
-    try {
-      token = await this.managementClient.getAccessToken();
-    } catch (err) {
-      throw new IntegrationProviderAuthenticationError({
-        cause: err,
-        endpoint: this.config.domain,
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
-    this.verifyScopes(jwtDecode(token).scope);
-  }
-
-  private verifyScopes(scopeString) {
-    const missingScopes: string[] = [];
-    if (!/read:users/.test(scopeString)) {
-      missingScopes.push('read:users');
-    }
-    if (!/read:clients/.test(scopeString)) {
-      missingScopes.push('read:clients');
-    }
-    if (missingScopes.length > 0) {
-      throw new IntegrationProviderAuthenticationError({
-        cause: undefined,
-        endpoint: `${this.config.audience}clients`,
-        status: 'Insufficient scope for token',
-        statusText: `Required scopes ${missingScopes} not set. Set via the down arrow button on the right at ${getAcctWeblink(
-          this.config.domain,
-        )}applications/${this.config.clientId}/apis`,
-      });
-    }
+    this.logger = logger;
   }
 
   /**
@@ -74,7 +43,6 @@ export class APIClient {
    * @param iteratee receives each resource to produce entities/relationships
    */
   public async iterateUsers(
-    logger,
     iteratee: ResourceIteratee<Auth0User>,
   ): Promise<void> {
     //Auth0 sets the per_page max at 100 (default is 50)
@@ -107,7 +75,7 @@ export class APIClient {
     // Client params syntax is here:
     //https://auth0.github.io/node-auth0/module-management.ManagementClient.html#getUsers
 
-    await this.recursiveUserIterateeProcessor(logger, iteratee);
+    await this.recursiveUserIterateeProcessor(iteratee);
   }
 
   /**
@@ -126,9 +94,8 @@ export class APIClient {
         per_page: 100,
         page: pageNum,
       };
-      const clients: Auth0Client[] = await this.managementClient.getClients(
-        params,
-      );
+      const { data: clients } =
+        await this.managementClient.clients.getAll(params);
       appCount = clients.length;
       pageNum = pageNum + 1;
       for (const client of clients) {
@@ -138,16 +105,15 @@ export class APIClient {
   }
 
   public async recursiveUserIterateeProcessor(
-    logger,
     iteratee: ResourceIteratee<Auth0User>,
     depthLevel: number = 0,
     tailString: string = '',
     tooManyUsers: number = 1000, //never set this to less than 2 or infinite recursion occurs
     usersPerPage: number = 100, //defaults to 50, max is 100
   ) {
-    //before starting, check for excessive recursion in case of error by code change
-    //Since depthlevel 0 pulls 1000 users, and each recursion multiples that by 15,
-    //depthlevel 3 can pull over 3 million users. Feel free to increase if needed.
+    // before starting, check for excessive recursion in case of error by code change
+    // Since depthlevel 0 pulls 1000 users, and each recursion multiples that by 15,
+    // depthlevel 3 can pull over 3 million users. Feel free to increase if needed.
     if (depthLevel > 3) {
       throw new Error(
         `Excessive recursion detected in client.ts, iterateUsers, recursiveUserIterateeProcessor, depthlevel=${depthLevel}`,
@@ -188,18 +154,15 @@ export class APIClient {
       q: queryString,
       include_totals: true,
     };
-    const reply: Auth0UsersIncludeTotal = await this.managementClient.getUsers(
-      params,
-    );
-    logger.info(
-      'reply:',
-      JSON.stringify({
-        start: reply.start,
-        limit: reply.limit,
-        length: reply.length,
-        total: reply.total,
-      }),
-    );
+
+    // @HACK: typings mismatch the actual response
+    const {
+      data: reply,
+      status,
+      statusText,
+    } = (await this.managementClient.users.getAll(params)) as any;
+    this.logger.info({ step: 'fetch-users-inside-if', status, statusText });
+
     const total = reply.total;
 
     if (total < tooManyUsers) {
@@ -216,9 +179,16 @@ export class APIClient {
           q: queryString,
           include_totals: true,
         };
-        const response: Auth0UsersIncludeTotal = await this.managementClient.getUsers(
-          localParams,
-        );
+        const {
+          data: response,
+          status,
+          statusText,
+        } = (await this.managementClient.users.getAll(localParams)) as any;
+        this.logger.info({
+          step: 'fetch-users-inside-while',
+          status,
+          statusText,
+        });
         for (const user of response.users) {
           await iteratee(user);
         }
@@ -230,7 +200,6 @@ export class APIClient {
       for (const tail in tails) {
         const fulltail: string = tails[tail].concat(tailString);
         await this.recursiveUserIterateeProcessor(
-          logger,
           iteratee,
           depthLevel + 1,
           fulltail,
@@ -240,6 +209,9 @@ export class APIClient {
   }
 }
 
-export function createAPIClient(config: IntegrationConfig): APIClient {
-  return new APIClient(config);
+export function createAPIClient(
+  config: IntegrationConfig,
+  logger: IntegrationLogger,
+): APIClient {
+  return new APIClient(config, logger);
 }

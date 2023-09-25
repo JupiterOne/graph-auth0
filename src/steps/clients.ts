@@ -14,8 +14,9 @@ import { DATA_ACCOUNT_ENTITY } from './account';
 export async function fetchClients({
   instance,
   jobState,
+  logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const apiClient = createAPIClient(instance.config);
+  const apiClient = createAPIClient(instance.config, logger);
 
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 

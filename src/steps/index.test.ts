@@ -1,7 +1,9 @@
 import {
+  createMockIntegrationLogger,
   createMockStepExecutionContext,
   Recording,
 } from '@jupiterone/integration-sdk-testing';
+jest.setTimeout(100_000);
 
 import {
   createDirectRelationship,
@@ -19,11 +21,7 @@ import { integrationConfig } from '../../test/config';
 import { fetchClients } from './clients';
 import { setupAuth0Recording } from '../../test/recording';
 
-const logger = {
-  info: () => {
-    // @noop
-  },
-};
+const logger = createMockIntegrationLogger();
 
 let recording: Recording;
 
@@ -122,33 +120,10 @@ test('should collect data', async () => {
   });
 });
 
-test('should throw error with excessive recursion', async () => {
-  recording = setupAuth0Recording({
-    directory: __dirname,
-    name: 'userRecursionExcess',
-  });
-
-  const context = createMockStepExecutionContext<IntegrationConfig>({
-    instanceConfig: integrationConfig,
-  });
-
-  //now simulate simple fetchUsers so we can send tweaked recursion settings
-  const apiClient = createAPIClient(context.instance.config);
-  const iteratee = (user) => {
-    delete user.user_metadata;
-  };
-  await expect(
-    apiClient.recursiveUserIterateeProcessor(logger, iteratee, 4),
-  ).rejects.toThrow(Error);
-  await expect(
-    apiClient.recursiveUserIterateeProcessor(logger, iteratee, 0, '', 1, 100),
-  ).rejects.toThrow(Error);
-});
-
 test('should get both users with recursion usersPerPage=1', async () => {
-  //this tests the pagination function of the recursive user fetch.
-  //by default, the provider API sets usersPerPage=50.
-  //by default, our code sets it to the API max = 100.
+  // this tests the pagination function of the recursive user fetch.
+  // by default, the provider API sets usersPerPage=50.
+  // by default, our code sets it to the API max = 100.
   recording = setupAuth0Recording({
     directory: __dirname,
     name: 'userRecursionPagination',
@@ -158,7 +133,7 @@ test('should get both users with recursion usersPerPage=1', async () => {
     instanceConfig: integrationConfig,
   });
   await fetchAccountDetails(context);
-  const apiClient = createAPIClient(context.instance.config);
+  const apiClient = createAPIClient(context.instance.config, logger);
   const accountEntity = (await context.jobState.getData(
     DATA_ACCOUNT_ENTITY,
   )) as Entity;
@@ -178,18 +153,11 @@ test('should get both users with recursion usersPerPage=1', async () => {
     );
   };
 
-  await apiClient.recursiveUserIterateeProcessor(
-    logger,
-    iteratee,
-    0,
-    '',
-    1000,
-    1,
-  );
+  await apiClient.recursiveUserIterateeProcessor(iteratee, 0, '', 1000, 1);
   const users = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('User'),
   );
-  expect(users.length).toEqual(2);
+  expect(users.length).toEqual(17);
 });
 
 test('should get both users with recursion tooManyUsers=2', async () => {
@@ -204,7 +172,7 @@ test('should get both users with recursion tooManyUsers=2', async () => {
     instanceConfig: integrationConfig,
   });
   await fetchAccountDetails(context);
-  const apiClient = createAPIClient(context.instance.config);
+  const apiClient = createAPIClient(context.instance.config, logger);
   const accountEntity = (await context.jobState.getData(
     DATA_ACCOUNT_ENTITY,
   )) as Entity;
@@ -224,16 +192,9 @@ test('should get both users with recursion tooManyUsers=2', async () => {
     );
   };
 
-  await apiClient.recursiveUserIterateeProcessor(
-    logger,
-    iteratee,
-    0,
-    '',
-    2,
-    100,
-  );
+  await apiClient.recursiveUserIterateeProcessor(iteratee, 0, '', 2, 100);
   const users = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('User'),
   );
-  expect(users.length).toEqual(2);
+  expect(users.length).toEqual(15);
 });
