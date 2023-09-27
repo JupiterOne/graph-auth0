@@ -16,11 +16,11 @@ export async function fetchUsers({
   jobState,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const apiClient = createAPIClient(instance.config);
+  const apiClient = createAPIClient(instance.config, logger);
 
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
-  await apiClient.iterateUsers(logger, async (user) => {
+  await apiClient.iterateUsers(async (user) => {
     //unspecified content fields to delete for safety
     delete user.user_metadata;
     delete user.app_metadata;

@@ -2,8 +2,8 @@ import {
   createIntegrationEntity,
   Entity,
 } from '@jupiterone/integration-sdk-core';
-import { Auth0Client } from '../types/clients';
 import { Auth0User } from '../types/users';
+import { Client } from 'auth0';
 
 export function createUserEntity(
   user: Auth0User,
@@ -18,7 +18,7 @@ export function createUserEntity(
     entityData: {
       source: user,
       assign: {
-        _key: user.user_id,
+        _key: `${user.user_id}`,
         _type: 'auth0_user',
         _class: 'User',
         name: user.name,
@@ -48,14 +48,24 @@ export function createUserEntity(
 }
 
 export function createClientEntity(
-  client: Auth0Client,
+  client: Omit<
+    Client,
+    | 'client_secret'
+    | 'jwt_configuration'
+    | 'signing_keys'
+    | 'encryption_key'
+    | 'addons'
+    | 'client_metadata'
+    | 'mobile'
+    | 'native_social_login'
+  >,
   accountWeblink: string,
 ): Entity {
   return createIntegrationEntity({
     entityData: {
       source: client,
       assign: {
-        _key: client.client_id,
+        _key: `${client.client_id}`,
         _type: 'auth0_client',
         _class: 'Application',
         name: client.name,

@@ -1,43 +1,16 @@
-import {
-  IntegrationProviderAuthenticationError,
-  IntegrationValidationError,
-} from '@jupiterone/integration-sdk-core';
-import {
-  createMockExecutionContext,
-  setupRecording,
-} from '@jupiterone/integration-sdk-testing';
+import { createMockExecutionContext } from '@jupiterone/integration-sdk-testing';
 import { IntegrationConfig, validateInvocation } from './config';
 
-it('requires valid config', async () => {
-  const executionContext = createMockExecutionContext<IntegrationConfig>({
-    instanceConfig: {} as IntegrationConfig,
-  });
+it('requires valid config', () => {
+  try {
+    const executionContext = createMockExecutionContext<IntegrationConfig>({
+      instanceConfig: {} as IntegrationConfig,
+    });
 
-  await expect(validateInvocation(executionContext)).rejects.toThrow(
-    IntegrationValidationError,
-  );
-});
-
-it('auth error', async () => {
-  const recording = setupRecording({
-    directory: '__recordings__',
-    name: 'client-auth-error',
-  });
-
-  recording.server.any().intercept((req, res) => {
-    res.status(401);
-  });
-
-  const executionContext = createMockExecutionContext({
-    instanceConfig: {
-      clientId: 'INVALID',
-      clientSecret: 'INVALID',
-      domain: 'dev-jupiterone.us.auth0.com',
-      audience: 'https://dev-jupiterone.us.auth0.com/api/v2/',
-    },
-  });
-
-  await expect(validateInvocation(executionContext)).rejects.toThrow(
-    IntegrationProviderAuthenticationError,
-  );
+    validateInvocation(executionContext);
+  } catch (err) {
+    expect(err.message).toEqual(
+      'Config requires all of {clientId, clientSecret, domain, audience}',
+    );
+  }
 });

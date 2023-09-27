@@ -62,7 +62,7 @@ export interface IntegrationConfig extends IntegrationInstanceConfig {
   audience: string;
 }
 
-export async function validateInvocation(
+export function validateInvocation(
   context: IntegrationExecutionContext<IntegrationConfig>,
 ) {
   const { config } = context.instance;
@@ -105,6 +105,5 @@ export async function validateInvocation(
     );
   }
 
-  const apiClient = createAPIClient(config);
-  await apiClient.verifyAuthentication();
+  createAPIClient(config, context.logger);
 }

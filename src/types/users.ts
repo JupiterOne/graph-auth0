@@ -31,9 +31,13 @@ export interface Auth0User {
 }
 
 export interface Auth0UsersIncludeTotal {
-  start: number; //start of page
-  limit: number; //per_page limit in query
-  length: number; //number of users returned in this page
-  users: Auth0User[];
-  total: number; //total users returned by this query across all pages
+  status: number;
+  statusText: string;
+  data: {
+    start: number; //start of page
+    limit: number; //per_page limit in query
+    length: number; //number of users returned in this page
+    users: Auth0User[];
+    total: number; //total users returned by this query across all pages
+  };
 }

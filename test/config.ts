@@ -10,7 +10,7 @@ if (process.env.LOAD_ENV) {
 
 const DEFAULT_CLIENT_ID = 'dummy-acme-client-id';
 const DEFAULT_CLIENT_SECRET = 'dummy-acme-client-secret';
-const DEFAULT_DOMAIN = 'dev-jupiterone.us.auth0.com';
+const DEFAULT_DOMAIN = 'dev-1twhdvfgiaaimlwz.au.auth0.com';
 const DEFAULT_AUDIENCE = 'dummy-audience';
 
 export const integrationConfig: IntegrationConfig = {
