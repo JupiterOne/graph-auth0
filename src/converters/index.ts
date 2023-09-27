@@ -18,7 +18,7 @@ export function createUserEntity(
     entityData: {
       source: user,
       assign: {
-        _key: user.user_id,
+        _key: `${user.user_id}`,
         _type: 'auth0_user',
         _class: 'User',
         name: user.name,
@@ -55,7 +55,7 @@ export function createClientEntity(
     entityData: {
       source: client,
       assign: {
-        _key: client.client_id,
+        _key: `${client.client_id}`,
         _type: 'auth0_client',
         _class: 'Application',
         name: client.name,

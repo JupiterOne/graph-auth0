@@ -2,7 +2,6 @@ import { ManagementClient } from 'auth0';
 
 import { IntegrationConfig } from './config';
 import { Auth0User } from './types/users';
-import { Auth0Client } from './types/clients';
 import { IntegrationLogger } from '@jupiterone/integration-sdk-core';
 import fetch from 'node-fetch';
 
@@ -83,9 +82,7 @@ export class APIClient {
    *
    * @param iteratee receives each resource to produce entities/relationships
    */
-  public async iterateClients(
-    iteratee: ResourceIteratee<Auth0Client>,
-  ): Promise<void> {
+  public async iterateClients(iteratee): Promise<void> {
     //see Users comments for API limitations, though they are unlikely to be a problem here
     let appCount: number = 1;
     let pageNum: number = 0;
