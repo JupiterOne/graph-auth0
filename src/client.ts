@@ -1,4 +1,4 @@
-import { ManagementClient } from 'auth0';
+import { Client, ManagementClient } from 'auth0';
 
 import { IntegrationConfig } from './config';
 import { Auth0User } from './types/users';
@@ -82,7 +82,9 @@ export class APIClient {
    *
    * @param iteratee receives each resource to produce entities/relationships
    */
-  public async iterateClients(iteratee): Promise<void> {
+  public async iterateClients(
+    iteratee: ResourceIteratee<Client>,
+  ): Promise<void> {
     //see Users comments for API limitations, though they are unlikely to be a problem here
     let appCount: number = 1;
     let pageNum: number = 0;

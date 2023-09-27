@@ -5,7 +5,6 @@ import {
   IntegrationInstanceConfig,
 } from '@jupiterone/integration-sdk-core';
 import { createAPIClient } from './client';
-import { createMockIntegrationLogger } from '@jupiterone/integration-sdk-testing';
 
 /**
  * A type describing the configuration fields required to execute the
@@ -106,5 +105,5 @@ export function validateInvocation(
     );
   }
 
-  createAPIClient(config, createMockIntegrationLogger());
+  createAPIClient(config, context.logger);
 }

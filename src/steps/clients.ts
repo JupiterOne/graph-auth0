@@ -21,21 +21,23 @@ export async function fetchClients({
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
   await apiClient.iterateClients(async (client) => {
-    //the following properties are all security related and should be redacted
-    delete client.client_secret;
-    delete client.jwt_configuration;
-    delete client.signing_keys;
-    delete client.encryption_key;
-    //the following properties contain objects with unknown data
-    //deleting for security purposes, though it's possible they might be wanted later
-    delete client.addons;
-    delete client.client_metadata;
-    delete client.mobile;
-    delete client.native_social_login;
-    //see schema in types/clients.ts for more on what these fields mean
+    const {
+      //the following properties are all security related and should be redacted
+      client_secret,
+      jwt_configuration,
+      signing_keys,
+      encryption_key,
+      //the following properties contain objects with unknown data
+      //deleting for security purposes, though it's possible they might be wanted later
+      addons,
+      client_metadata,
+      mobile,
+      native_social_login,
+      ...rest
+    } = client;
 
     const clientEntity = await jobState.addEntity(
-      createClientEntity(client, accountEntity.webLink!),
+      createClientEntity(rest, accountEntity.webLink!),
     );
 
     await jobState.addRelationship(
