@@ -1,7 +1,7 @@
 import { Client, ManagementClient } from 'auth0';
 
 import { IntegrationConfig } from './config';
-import { Auth0User } from './types/users';
+import { Auth0User, Auth0UsersIncludeTotal } from './types/users';
 import { IntegrationLogger } from '@jupiterone/integration-sdk-core';
 import fetch from 'node-fetch';
 
@@ -159,7 +159,9 @@ export class APIClient {
       data: reply,
       status,
       statusText,
-    } = (await this.managementClient.users.getAll(params)) as any;
+    } = (await this.managementClient.users.getAll(
+      params,
+    )) as unknown as Auth0UsersIncludeTotal;
     this.logger.info({ step: 'fetch-users-inside-if', status, statusText });
 
     const total = reply.total;
@@ -182,7 +184,9 @@ export class APIClient {
           data: response,
           status,
           statusText,
-        } = (await this.managementClient.users.getAll(localParams)) as any;
+        } = (await this.managementClient.users.getAll(
+          localParams,
+        )) as unknown as Auth0UsersIncludeTotal;
         this.logger.info({
           step: 'fetch-users-inside-while',
           status,

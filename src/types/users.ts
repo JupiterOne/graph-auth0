@@ -29,3 +29,15 @@ export interface Auth0User {
   given_name?: string;
   family_name?: string;
 }
+
+export interface Auth0UsersIncludeTotal {
+  status: number;
+  statusText: string;
+  data: {
+    start: number; //start of page
+    limit: number; //per_page limit in query
+    length: number; //number of users returned in this page
+    users: Auth0User[];
+    total: number; //total users returned by this query across all pages
+  };
+}
