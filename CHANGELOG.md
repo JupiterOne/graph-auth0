@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## 0.3.1 2023-09-28
+
+### Updated
+
+- Bump node-auth to v4
+
 ## 0.2.3 2023-09-14
 
 ### Added
