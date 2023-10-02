@@ -1,3 +1,15 @@
+# v0.5.0 (Mon Oct 02 2023)
+
+#### 🚀 Enhancement
+
+- INT-7967: downgrade auto version [#52](https://github.com/JupiterOne/graph-auth0/pull/52) ([@mishelashala](https://github.com/mishelashala))
+
+#### Authors: 1
+
+- Michell Ayala ([@mishelashala](https://github.com/mishelashala))
+
+---
+
 # v0.4.0 (Thu Sep 28 2023)
 
 #### 🚀 Enhancement
