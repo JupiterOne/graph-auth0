@@ -46,7 +46,7 @@
     "@jupiterone/integration-sdk-core": "^10.7.0",
     "@jupiterone/integration-sdk-dev-tools": "^10.7.0",
     "@jupiterone/integration-sdk-testing": "^10.7.0",
-    "auto": "^11.0.4"
+    "auto": "^10"
   },
   "auto": {
     "plugins": [
