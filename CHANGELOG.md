@@ -2,7 +2,9 @@
 
 #### 🚀 Enhancement
 
-- INT-7967: downgrade auto version [#52](https://github.com/JupiterOne/graph-auth0/pull/52) ([@mishelashala](https://github.com/mishelashala))
+- INT-7967: downgrade auto version
+  [#52](https://github.com/JupiterOne/graph-auth0/pull/52)
+  ([@mishelashala](https://github.com/mishelashala))
 
 #### Authors: 1
 

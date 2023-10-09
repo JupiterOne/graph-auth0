@@ -162,7 +162,15 @@ export class APIClient {
     } = (await this.managementClient.users.getAll(
       params,
     )) as unknown as Auth0UsersIncludeTotal;
-    this.logger.info({ step: 'fetch-users-inside-if', status, statusText });
+    this.logger.info({
+      step: 'fetch-users-inside-if',
+      status,
+      statusText,
+      'reply.start': reply.start,
+      'reply.limit': reply.limit,
+      'reply.length': reply.length,
+      'reply.total': reply.total,
+    });
 
     const total = reply.total;
 
@@ -191,6 +199,10 @@ export class APIClient {
           step: 'fetch-users-inside-while',
           status,
           statusText,
+          'reply.start': reply.start,
+          'reply.limit': reply.limit,
+          'reply.length': reply.length,
+          'reply.total': reply.total,
         });
         for (const user of response.users) {
           await iteratee(user);
