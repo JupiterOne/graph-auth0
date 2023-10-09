@@ -1,3 +1,15 @@
+# v0.5.1 (Mon Oct 09 2023)
+
+#### 🐛 Bug Fix
+
+- INT-7967: add logs [#53](https://github.com/JupiterOne/graph-auth0/pull/53) ([@mishelashala](https://github.com/mishelashala))
+
+#### Authors: 1
+
+- Michell Ayala ([@mishelashala](https://github.com/mishelashala))
+
+---
+
 # v0.5.0 (Mon Oct 02 2023)
 
 #### 🚀 Enhancement
