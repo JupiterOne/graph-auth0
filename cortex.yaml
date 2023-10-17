@@ -1,0 +1,12 @@
+openapi: 3.0.1
+info:
+  title: '@jupiterone/graph-auth0'
+  description: A JupiterOne Integration for https://auth0.com/
+  x-cortex-git:
+    github:
+      repository: JupiterOne/graph-auth0
+  x-cortex-owners:
+    - type: group
+      name: JupiterOne/integrations
+  x-cortex-service-groups: tier-4
+  x-cortex-tag: '@jupiterone/graph-auth0'

@@ -2,6 +2,10 @@
   "name": "@jupiterone/graph-auth0",
   "version": "0.5.1",
   "description": "A JupiterOne Integration for https://auth0.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JupiterOne/graph-auth0"
+  },
   "license": "MPL-2.0",
   "main": "src/index.js",
   "types": "src/index.d.ts",
