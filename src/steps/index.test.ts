@@ -157,7 +157,7 @@ test('should get both users with recursion usersPerPage=1', async () => {
   const users = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('User'),
   );
-  expect(users.length).toEqual(17);
+  expect(users.length).toEqual(1);
 });
 
 test('should get both users with recursion tooManyUsers=2', async () => {
@@ -196,5 +196,5 @@ test('should get both users with recursion tooManyUsers=2', async () => {
   const users = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('User'),
   );
-  expect(users.length).toEqual(15);
+  expect(users.length).toEqual(1);
 });

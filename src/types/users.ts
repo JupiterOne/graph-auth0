@@ -4,7 +4,9 @@ export interface Auth0UserIdentity {
   provider: string;
   isSocial: boolean;
 }
-
+export type KeyValue = {
+  [key: string]: any;
+};
 //schema per https://auth0.com/docs/api/management/v2/#!/Users/get_users
 export interface Auth0User {
   user_id?: string;
@@ -13,8 +15,8 @@ export interface Auth0User {
   username?: string;
   phone_number?: string;
   phone_verified?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  created_at?: string | KeyValue;
+  updated_at?: string | KeyValue;
   identities?: Auth0UserIdentity[];
   app_metadata?: object;
   user_metadata?: object;
@@ -23,7 +25,7 @@ export interface Auth0User {
   nickname?: string;
   multifactor?: string[]; //List of multi-factor authentication providers with which this user has enrolled.
   last_ip?: string;
-  last_login?: string;
+  last_login?: string | KeyValue;
   logins_count?: number;
   blocked?: boolean;
   given_name?: string;

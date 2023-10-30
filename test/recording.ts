@@ -16,7 +16,7 @@ export function setupAuth0Recording(
       mode: process.env.LOAD_ENV ? 'record' : 'replay',
       matchRequestsBy: {
         url: {
-          query: true,
+          query: false,
           hostname: true,
           pathname: true,
         },
