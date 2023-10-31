@@ -1,7 +1,7 @@
 import { Client, ManagementClient } from 'auth0';
 
 import { IntegrationConfig } from './config';
-import { Auth0User, Auth0UsersIncludeTotal } from './types/users';
+import { Auth0User } from './types/users';
 import {
   IntegrationLogger,
   IntegrationProviderAPIError,
@@ -143,126 +143,6 @@ export class APIClient {
       pageNum = pageNum + 1;
       for (const client of clients) {
         await iteratee(client);
-      }
-    }
-  }
-
-  public async recursiveUserIterateeProcessor(
-    iteratee: ResourceIteratee<Auth0User>,
-    depthLevel: number = 0,
-    tailString: string = '',
-    tooManyUsers: number = 1000, //never set this to less than 2 or infinite recursion occurs
-    usersPerPage: number = 100, //defaults to 50, max is 100
-  ) {
-    // before starting, check for excessive recursion in case of error by code change
-    // Since depthlevel 0 pulls 1000 users, and each recursion multiples that by 15,
-    // depthlevel 3 can pull over 3 million users. Feel free to increase if needed.
-    if (depthLevel > 3) {
-      throw new Error(
-        `Excessive recursion detected in client.ts, iterateUsers, recursiveUserIterateeProcessor, depthlevel=${depthLevel}`,
-      );
-    }
-    //also, make sure that tooManyUsers > 1
-    if (!(tooManyUsers > 1)) {
-      throw new Error(
-        `Function param tooManyUsers set too low, in client.ts, iterateUsers, recursiveUserIterateeProcessor, tooManyUsers=${tooManyUsers}`,
-      );
-    }
-
-    //depthLevel should be the number of characters on the tail
-    //in other words, tail string should be depthLevel characters long
-    const tails: string[] = [
-      '0',
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      'a',
-      'b',
-      'c',
-      'd',
-      'e',
-      //'f', //apparently, 'f' is not a legitimate character in hex-code userids
-    ];
-    //will a query at the current depth level return 1000 users? If so, we need recursion
-    const queryString = 'user_id:auth0|*' + tailString;
-    const params = {
-      per_page: usersPerPage,
-      page: 0,
-      q: queryString,
-      include_totals: true,
-    };
-
-    // @HACK: typings mismatch the actual response
-    const {
-      data: reply,
-      status,
-      statusText,
-    } = (await this.managementClient.users.getAll(
-      params,
-    )) as unknown as Auth0UsersIncludeTotal;
-    this.logger.info({
-      step: 'fetch-users-inside-if',
-      status,
-      statusText,
-      'reply.start': reply.start,
-      'reply.limit': reply.limit,
-      'reply.length': reply.length,
-      'reply.total': reply.total,
-    });
-
-    const total = reply.total;
-
-    if (total < tooManyUsers) {
-      // execute what you got and then go get the rest of the pages
-      for (const user of reply.users) {
-        await iteratee(user);
-      }
-      let pageNum = 1;
-      let leftToGet = total - reply.length;
-      while (leftToGet > 0) {
-        const localParams = {
-          per_page: usersPerPage,
-          page: pageNum,
-          q: queryString,
-          include_totals: true,
-        };
-        const {
-          data: response,
-          status,
-          statusText,
-        } = (await this.managementClient.users.getAll(
-          localParams,
-        )) as unknown as Auth0UsersIncludeTotal;
-        this.logger.info({
-          step: 'fetch-users-inside-while',
-          status,
-          statusText,
-          'reply.start': reply.start,
-          'reply.limit': reply.limit,
-          'reply.length': reply.length,
-          'reply.total': reply.total,
-        });
-        for (const user of response.users) {
-          await iteratee(user);
-        }
-        leftToGet = leftToGet - response.length;
-        pageNum = pageNum + 1;
-      }
-    } else {
-      // recurse
-      for (const tail in tails) {
-        const fulltail: string = tails[tail].concat(tailString);
-        await this.recursiveUserIterateeProcessor(
-          iteratee,
-          depthLevel + 1,
-          fulltail,
-        );
       }
     }
   }
