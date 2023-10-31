@@ -1,3 +1,20 @@
+# v0.6.0 (Tue Oct 31 2023)
+
+#### 🚀 Enhancement
+
+- Int 9883 [#54](https://github.com/JupiterOne/graph-auth0/pull/54) (gonzaloavalosribas@Gonzalos-MacBook-Pro.local)
+
+#### ⚠️ Pushed to `main`
+
+- Populate CODEOWENRS, baseline package.json and baseline cortex.yaml ([@jablonnc](https://github.com/jablonnc))
+
+#### Authors: 2
+
+- Gonzalo Avalos Ribas ([@Gonzalo-Avalos-Ribas](https://github.com/Gonzalo-Avalos-Ribas))
+- Noah Jablonski ([@jablonnc](https://github.com/jablonnc))
+
+---
+
 # v0.5.1 (Mon Oct 09 2023)
 
 #### 🐛 Bug Fix
