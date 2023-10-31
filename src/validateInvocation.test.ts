@@ -5,6 +5,7 @@ import {
 import { IntegrationConfig, validateInvocation } from './config';
 import { setupAuth0Recording } from '../test/recording';
 import { integrationConfig } from '../test/config';
+import { IntegrationValidationError } from '@jupiterone/integration-sdk-core';
 let recording: Recording;
 
 afterEach(async () => {
@@ -41,6 +42,6 @@ it('throw if Unauthorized', async () => {
 
     await validateInvocation(executionContext);
   } catch (err) {
-    expect(err.message).toEqual('Unauthorized');
+    expect(err).toBeInstanceOf(IntegrationValidationError);
   }
 });
