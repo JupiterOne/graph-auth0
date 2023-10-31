@@ -11,7 +11,7 @@ if (process.env.LOAD_ENV) {
 const DEFAULT_CLIENT_ID = 'dummy-acme-client-id';
 const DEFAULT_CLIENT_SECRET = 'dummy-acme-client-secret';
 const DEFAULT_DOMAIN = 'dev-123456777777.us.auth0.com';
-const DEFAULT_AUDIENCE = 'dummy-audience';
+const DEFAULT_AUDIENCE = 'https://dev-123456777777.us.auth0.com/api/v2/';
 
 export const integrationConfig: IntegrationConfig = {
   clientId: process.env.CLIENT_ID || DEFAULT_CLIENT_ID,

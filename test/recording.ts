@@ -13,6 +13,7 @@ export function setupAuth0Recording(
   return setupRecording({
     ...input,
     options: {
+      ...input.options,
       mode: process.env.LOAD_ENV ? 'record' : 'replay',
       matchRequestsBy: {
         url: {

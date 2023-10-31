@@ -86,6 +86,9 @@ export class APIClient {
         for (const user of data.users) {
           await iteratee(user);
         }
+        if (!data || !data.users || data.users.length === 0) {
+          return;
+        }
         lastCreatedAt = new Date(
           data.users[data.length - 1].created_at as string,
         ).toISOString();
