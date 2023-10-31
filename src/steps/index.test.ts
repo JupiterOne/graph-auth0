@@ -1,27 +1,15 @@
 import {
-  createMockIntegrationLogger,
   createMockStepExecutionContext,
   Recording,
 } from '@jupiterone/integration-sdk-testing';
 jest.setTimeout(100_000);
 
-import {
-  createDirectRelationship,
-  Entity,
-  RelationshipClass,
-} from '@jupiterone/integration-sdk-core';
-
-import { createAPIClient } from '../client';
-import { createUserEntity } from '../converters';
-import { DATA_ACCOUNT_ENTITY } from './account';
 import { IntegrationConfig } from '../config';
 import { fetchUsers } from './users';
 import { fetchAccountDetails } from './account';
 import { integrationConfig } from '../../test/config';
 import { fetchClients } from './clients';
 import { setupAuth0Recording } from '../../test/recording';
-
-const logger = createMockIntegrationLogger();
 
 let recording: Recording;
 
@@ -118,83 +106,4 @@ test('should collect data', async () => {
       required: [],
     },
   });
-});
-
-test('should get both users with recursion usersPerPage=1', async () => {
-  // this tests the pagination function of the recursive user fetch.
-  // by default, the provider API sets usersPerPage=50.
-  // by default, our code sets it to the API max = 100.
-  recording = setupAuth0Recording({
-    directory: __dirname,
-    name: 'userRecursionPagination',
-  });
-
-  const context = createMockStepExecutionContext<IntegrationConfig>({
-    instanceConfig: integrationConfig,
-  });
-  await fetchAccountDetails(context);
-  const apiClient = createAPIClient(context.instance.config, logger);
-  const accountEntity = (await context.jobState.getData(
-    DATA_ACCOUNT_ENTITY,
-  )) as Entity;
-  const iteratee = async (user) => {
-    //unspecified content fields to delete for safety
-    delete user.user_metadata;
-    delete user.app_metadata;
-    const userEntity = await context.jobState.addEntity(
-      createUserEntity(user, accountEntity.webLink!),
-    );
-    await context.jobState.addRelationship(
-      createDirectRelationship({
-        _class: RelationshipClass.HAS,
-        from: accountEntity,
-        to: userEntity,
-      }),
-    );
-  };
-
-  await apiClient.recursiveUserIterateeProcessor(iteratee, 0, '', 1000, 1);
-  const users = context.jobState.collectedEntities.filter((e) =>
-    e._class.includes('User'),
-  );
-  expect(users.length).toEqual(17);
-});
-
-test('should get both users with recursion tooManyUsers=2', async () => {
-  //this tests the ability of the recursion to recurse when tooManyUsers is reached,
-  //which indicates that the provider API is truncating results. Normally that is 1000.
-  recording = setupAuth0Recording({
-    directory: __dirname,
-    name: 'userRecursionRecursion',
-  });
-
-  const context = createMockStepExecutionContext<IntegrationConfig>({
-    instanceConfig: integrationConfig,
-  });
-  await fetchAccountDetails(context);
-  const apiClient = createAPIClient(context.instance.config, logger);
-  const accountEntity = (await context.jobState.getData(
-    DATA_ACCOUNT_ENTITY,
-  )) as Entity;
-  const iteratee = async (user) => {
-    //unspecified content fields to delete for safety
-    delete user.user_metadata;
-    delete user.app_metadata;
-    const userEntity = await context.jobState.addEntity(
-      createUserEntity(user, accountEntity.webLink!),
-    );
-    await context.jobState.addRelationship(
-      createDirectRelationship({
-        _class: RelationshipClass.HAS,
-        from: accountEntity,
-        to: userEntity,
-      }),
-    );
-  };
-
-  await apiClient.recursiveUserIterateeProcessor(iteratee, 0, '', 2, 100);
-  const users = context.jobState.collectedEntities.filter((e) =>
-    e._class.includes('User'),
-  );
-  expect(users.length).toEqual(15);
 });

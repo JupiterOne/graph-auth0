@@ -2,7 +2,7 @@ import {
   createIntegrationEntity,
   Entity,
 } from '@jupiterone/integration-sdk-core';
-import { Auth0User } from '../types/users';
+import { Auth0User, KeyValue } from '../types/users';
 import { Client } from 'auth0';
 
 export function createUserEntity(
@@ -31,13 +31,13 @@ export function createUserEntity(
         emailVerified: user.email_verified,
         phoneNumber: user.phone_number,
         phoneVerified: user.phone_verified,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at,
+        createdAt: propertyToString(user.created_at),
+        updatedAt: propertyToString(user.updated_at),
         identities: JSON.stringify(user.identities), //array of objects
         picture: user.picture, //url
         multifactor: user.multifactor, //string[]
         lastIp: user.last_ip,
-        lastLogin: user.last_login,
+        lastLogin: propertyToString(user.last_login),
         loginsCount: user.logins_count,
         blocked: user.blocked,
         givenName: user.given_name,
@@ -46,7 +46,17 @@ export function createUserEntity(
     },
   });
 }
-
+function propertyToString(
+  property: string | KeyValue | undefined,
+): string | undefined {
+  if (property) {
+    if (typeof property === 'string') {
+      return property;
+    }
+    return JSON.stringify(property);
+  }
+  return property;
+}
 export function createClientEntity(
   client: Omit<
     Client,
