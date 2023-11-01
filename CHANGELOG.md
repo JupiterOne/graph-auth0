@@ -1,3 +1,15 @@
+# v0.6.1 (Wed Nov 01 2023)
+
+#### 🐛 Bug Fix
+
+- Fix Auth0 Validate invocation [#55](https://github.com/JupiterOne/graph-auth0/pull/55) (gonzaloavalosribas@Gonzalos-MacBook-Pro.local)
+
+#### Authors: 1
+
+- Gonzalo Avalos Ribas ([@Gonzalo-Avalos-Ribas](https://github.com/Gonzalo-Avalos-Ribas))
+
+---
+
 # v0.6.0 (Tue Oct 31 2023)
 
 #### 🚀 Enhancement
