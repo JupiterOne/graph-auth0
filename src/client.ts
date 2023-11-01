@@ -37,7 +37,12 @@ export class APIClient {
     });
     this.logger = logger;
   }
-
+  async testConnection() {
+    await this.managementClient.users.getAll({
+      per_page: 1,
+      page: 1,
+    });
+  }
   /**
    * Iterates each user resource in the provider.
    * According to the docs you cant retrieve more that 1000 users using pagination
@@ -80,6 +85,9 @@ export class APIClient {
         seen += data.users.length;
         for (const user of data.users) {
           await iteratee(user);
+        }
+        if (!data || !data.users || data.users.length === 0) {
+          return;
         }
         lastCreatedAt = new Date(
           data.users[data.length - 1].created_at as string,
