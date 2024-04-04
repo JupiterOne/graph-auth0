@@ -1,3 +1,15 @@
+# v0.8.0 (Thu Apr 04 2024)
+
+#### 🚀 Enhancement
+
+- Refactor iterate methods [#57](https://github.com/JupiterOne/graph-auth0/pull/57) ([@jehisonprada](https://github.com/jehisonprada))
+
+#### Authors: 1
+
+- [@jehisonprada](https://github.com/jehisonprada)
+
+---
+
 # v0.7.0 (Thu Apr 04 2024)
 
 #### 🚀 Enhancement
