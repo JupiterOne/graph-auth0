@@ -64,3 +64,9 @@ export interface Auth0Client {
   organization_usage?: string; //can be 'deny' (default), 'allow', or 'require'
   organization_require_behavior?: string; //Can be no_prompt (default) or pre_login_prompt.
 }
+
+export interface ApiResponse<T> {
+  data: T;
+  status: number;
+  statusText: string;
+}
