@@ -1,3 +1,22 @@
+# v0.7.0 (Thu Apr 04 2024)
+
+#### 🚀 Enhancement
+
+- Int 10652 [#56](https://github.com/JupiterOne/graph-auth0/pull/56) (gonzaloavalosribas@Gonzalos-MacBook-Pro.local)
+
+#### ⚠️ Pushed to `main`
+
+- Apply remove-codeql with multi-gitter [ci skip] ([@electricgull](https://github.com/electricgull))
+- Fix x-cortex-service-groups where tier-4 was set incorrectly ([@jablonnc](https://github.com/jablonnc))
+
+#### Authors: 3
+
+- Cameron Griffin ([@electricgull](https://github.com/electricgull))
+- Gonzalo Avalos Ribas ([@Gonzalo-Avalos-Ribas](https://github.com/Gonzalo-Avalos-Ribas))
+- Noah Jablonski ([@jablonnc](https://github.com/jablonnc))
+
+---
+
 # v0.6.1 (Wed Nov 01 2023)
 
 #### 🐛 Bug Fix
