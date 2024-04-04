@@ -15,6 +15,7 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import fetch from 'node-fetch';
 import { retry } from '@lifeomic/attempt';
+import { ApiResponse } from './types/clients';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -103,6 +104,7 @@ export class APIClient {
       query = `created_at:[${lastCreatedAt} TO ${dateNow}]`;
     } while (totalAmount === 1000);
   }
+
   private executeAPIRequestWithRetries<T>(
     endpoint: string,
     requestFunc: (params) => Promise<T>,
@@ -141,126 +143,94 @@ export class APIClient {
     iteratee: ResourceIteratee<Client>,
   ): Promise<void> {
     //see Users comments for API limitations, though they are unlikely to be a problem here
-    let appCount: number = 1;
-    let pageNum: number = 0;
-    while (appCount > 0) {
-      const params = {
-        per_page: 100,
-        page: pageNum,
-      };
-      const { data } = await this.executeAPIRequestWithRetries(
-        ' /api/v2/clients',
-        (params) => this.managementClient.clients.getAll(params),
-        params,
-      );
-      const clients = data as unknown as Array<Client>;
-      appCount = clients.length;
-      pageNum = pageNum + 1;
-      for (const client of clients) {
-        await iteratee(client);
-      }
-    }
+    await this.paginate({
+      iteratee,
+      url: '/api/v2/clients',
+      requestFunc: (params) => this.managementClient.clients.getAll(params),
+      params: {},
+    });
   }
 
   public async iterateRoles(
     iteratee: ResourceIteratee<GetOrganizationMemberRoles200ResponseOneOfInner>,
   ): Promise<void> {
-    let roleCount: number = 1;
-    let pageNum: number = 0;
-    while (roleCount > 0) {
-      const params = {
-        per_page: 100,
-        page: pageNum,
-      };
-      const { data } = await this.executeAPIRequestWithRetries(
-        ' /api/v2/roles',
-        (params) => this.managementClient.roles.getAll(params),
-        params,
-      );
-      const roles =
-        data as unknown as Array<GetOrganizationMemberRoles200ResponseOneOfInner>;
-      roleCount = roles.length;
-      pageNum = pageNum + 1;
-      for (const role of roles) {
-        await iteratee(role);
-      }
-    }
+    await this.paginate({
+      iteratee,
+      url: '/api/v2/roles',
+      requestFunc: (params) => this.managementClient.roles.getAll(params),
+    });
   }
 
   public async iterateRoleUsers(
     roleId: string,
     iteratee: ResourceIteratee<GetMembers200ResponseOneOfInner>,
   ): Promise<void> {
-    let userCount: number = 1;
-    let pageNum: number = 0;
-    while (userCount > 0) {
-      const params = {
-        per_page: 100,
-        page: pageNum,
-        id: roleId,
-      };
-      const { data } = await this.executeAPIRequestWithRetries(
-        '/api/v2/role/users',
-        (params) => this.managementClient.roles.getUsers(params),
-        params,
-      );
-      const users = data as unknown as Array<GetMembers200ResponseOneOfInner>;
-      userCount = users.length;
-      pageNum = pageNum + 1;
-      for (const user of users) {
-        await iteratee(user);
-      }
-    }
+    await this.paginate({
+      iteratee,
+      url: '/api/v2/role/users',
+      requestFunc: (params) => this.managementClient.roles.getUsers(params),
+      params: { id: roleId },
+    });
   }
 
   public async iterateServers(
     iteratee: ResourceIteratee<ResourceServer>,
   ): Promise<void> {
-    let resourceServerCount: number = 1;
-    let pageNum: number = 0;
-    while (resourceServerCount > 0) {
-      const params = {
-        per_page: 100,
-        page: pageNum,
-      };
-      const { data } = await this.executeAPIRequestWithRetries(
-        ' /api/v2/resource-servers',
-        (params) => this.managementClient.resourceServers.getAll(params),
-        params,
-      );
-      const resourceServers = data as unknown as Array<ResourceServer>;
-      resourceServerCount = resourceServers.length;
-      pageNum = pageNum + 1;
-      for (const server of resourceServers) {
-        await iteratee(server);
-      }
-    }
+    await this.paginate({
+      iteratee,
+      url: '/api/v2/resource-servers',
+      requestFunc: (params) =>
+        this.managementClient.resourceServers.getAll(params),
+    });
   }
 
   public async iterateRolePermissions(
     roleId: string,
     iteratee: ResourceIteratee<Permission>,
   ): Promise<void> {
-    let permissionCount: number = 1;
-    let pageNum: number = 0;
-    while (permissionCount > 0) {
-      const params = {
-        per_page: 100,
-        page: pageNum,
-        id: roleId,
-      };
+    await this.paginate({
+      iteratee,
+      url: '/api/v2/role/permissions',
+      requestFunc: (params) =>
+        this.managementClient.roles.getPermissions(params),
+      params: { id: roleId },
+    });
+  }
+
+  private async paginate<T, U>({
+    iteratee,
+    url,
+    requestFunc,
+    params,
+  }: {
+    iteratee: ResourceIteratee<T>;
+    url: string;
+    requestFunc: (params) => Promise<ApiResponse<U>>;
+    params?: Record<string, any>;
+  }) {
+    const processRequest = async (currentPage: number) => {
       const { data } = await this.executeAPIRequestWithRetries(
-        '/api/v2/role/permissions',
-        (params) => this.managementClient.roles.getPermissions(params),
-        params,
+        url,
+        requestFunc,
+        {
+          ...(params && { ...params }),
+          per_page: 100,
+          page: currentPage,
+        },
       );
-      const permissions = data as unknown as Array<Permission>;
-      permissionCount = permissions.length;
-      pageNum = pageNum + 1;
-      for (const permission of permissions) {
-        await iteratee(permission);
+      const items = data as unknown as Array<T>;
+      for (const item of items) {
+        await iteratee(item);
       }
-    }
+      return items;
+    };
+
+    let response: T[];
+    let currentPage = 0;
+    do {
+      response = await processRequest(currentPage);
+      currentPage++;
+    } while (response.length > 0);
   }
 }
 
