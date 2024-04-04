@@ -100,11 +100,13 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources     | Entity `_type`  | Entity `_class` |
-| ------------- | --------------- | --------------- |
-| Auth0 Account | `auth0_account` | `Account`       |
-| Auth0 Client  | `auth0_client`  | `Application`   |
-| User          | `auth0_user`    | `User`          |
+| Resources     | Entity `_type`  | Entity `_class`   |
+| ------------- | --------------- | ----------------- |
+| Auth0 Account | `auth0_account` | `Account`         |
+| Auth0 Client  | `auth0_client`  | `Application`     |
+| Auth0 Role    | `auth0_role`    | `AccessRole`      |
+| Auth0 Server  | `auth0_server`  | `Host`, `Gateway` |
+| Auth0 User    | `auth0_user`    | `User`            |
 
 ### Relationships
 
@@ -114,6 +116,8 @@ The following relationships are created:
 | --------------------- | --------------------- | --------------------- |
 | `auth0_account`       | **HAS**               | `auth0_client`        |
 | `auth0_account`       | **HAS**               | `auth0_user`          |
+| `auth0_role`          | **PROTECTS**          | `auth0_server`        |
+| `auth0_user`          | **ASSIGNED**          | `auth0_role`          |
 
 <!--
 ********************************************************************************

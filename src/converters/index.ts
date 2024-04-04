@@ -3,7 +3,12 @@ import {
   Entity,
 } from '@jupiterone/integration-sdk-core';
 import { Auth0User, KeyValue } from '../types/users';
-import { Client } from 'auth0';
+import {
+  Client,
+  GetOrganizationMemberRoles200ResponseOneOfInner,
+  ResourceServer,
+} from 'auth0';
+import { Auth0Entities } from '../constants/constants';
 
 export function createUserEntity(
   user: Auth0User,
@@ -19,8 +24,8 @@ export function createUserEntity(
       source: user,
       assign: {
         _key: `${user.user_id}`,
-        _type: 'auth0_user',
-        _class: 'User',
+        _type: Auth0Entities.AUTH0_USER._type,
+        _class: Auth0Entities.AUTH0_USER._class,
         name: user.name,
         displayName: user.name,
         username: user.username || '',
@@ -76,8 +81,8 @@ export function createClientEntity(
       source: client,
       assign: {
         _key: `${client.client_id}`,
-        _type: 'auth0_client',
-        _class: 'Application',
+        _type: Auth0Entities.AUTH0_CLIENT._type,
+        _class: Auth0Entities.AUTH0_CLIENT._class,
         name: client.name,
         displayName: client.name,
         webLink:
@@ -118,6 +123,50 @@ export function createClientEntity(
         tokenIdleTokenLifetime: client.refresh_token?.idle_token_lifetime,
         tokenInfiniteIdleTokenLifetime:
           client.refresh_token?.infinite_idle_token_lifetime,
+      },
+    },
+  });
+}
+
+export function createRoleEntity(
+  role: GetOrganizationMemberRoles200ResponseOneOfInner,
+  accountWeblink: string,
+): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: role,
+      assign: {
+        _key: `${role.id}`,
+        _type: Auth0Entities.AUTH0_ROLES._type,
+        _class: Auth0Entities.AUTH0_ROLES._class,
+        id: role.id,
+        name: role.name,
+        description: role.description,
+        webLink: accountWeblink + 'roles/' + role.id + '/settings',
+      },
+    },
+  });
+}
+
+export function createResourceServer(
+  server: ResourceServer,
+  accountWeblink: string,
+): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: server,
+      assign: {
+        _key: `${server.identifier}`,
+        _type: Auth0Entities.AUTH0_SERVER._type,
+        _class: Auth0Entities.AUTH0_SERVER._class,
+        id: server.id,
+        name: server.name,
+        hostname: server.identifier,
+        category: ['network'],
+        function: ['api-gateway'],
+        public: false,
+        offlineAccess: server.allow_offline_access,
+        webLink: accountWeblink + 'apis/' + server.id + '/settings',
       },
     },
   });
