@@ -1,4 +1,11 @@
-import { Client, ManagementClient } from 'auth0';
+import {
+  Client,
+  GetMembers200ResponseOneOfInner,
+  GetOrganizationMemberRoles200ResponseOneOfInner,
+  ManagementClient,
+  Permission,
+  ResourceServer,
+} from 'auth0';
 
 import { IntegrationConfig } from './config';
 import { Auth0User } from './types/users';
@@ -151,6 +158,107 @@ export class APIClient {
       pageNum = pageNum + 1;
       for (const client of clients) {
         await iteratee(client);
+      }
+    }
+  }
+
+  public async iterateRoles(
+    iteratee: ResourceIteratee<GetOrganizationMemberRoles200ResponseOneOfInner>,
+  ): Promise<void> {
+    let roleCount: number = 1;
+    let pageNum: number = 0;
+    while (roleCount > 0) {
+      const params = {
+        per_page: 100,
+        page: pageNum,
+      };
+      const { data } = await this.executeAPIRequestWithRetries(
+        ' /api/v2/roles',
+        (params) => this.managementClient.roles.getAll(params),
+        params,
+      );
+      const roles =
+        data as unknown as Array<GetOrganizationMemberRoles200ResponseOneOfInner>;
+      roleCount = roles.length;
+      pageNum = pageNum + 1;
+      for (const role of roles) {
+        await iteratee(role);
+      }
+    }
+  }
+
+  public async iterateRoleUsers(
+    roleId: string,
+    iteratee: ResourceIteratee<GetMembers200ResponseOneOfInner>,
+  ): Promise<void> {
+    let userCount: number = 1;
+    let pageNum: number = 0;
+    while (userCount > 0) {
+      const params = {
+        per_page: 100,
+        page: pageNum,
+        id: roleId,
+      };
+      const { data } = await this.executeAPIRequestWithRetries(
+        '/api/v2/role/users',
+        (params) => this.managementClient.roles.getUsers(params),
+        params,
+      );
+      const users = data as unknown as Array<GetMembers200ResponseOneOfInner>;
+      userCount = users.length;
+      pageNum = pageNum + 1;
+      for (const user of users) {
+        await iteratee(user);
+      }
+    }
+  }
+
+  public async iterateServers(
+    iteratee: ResourceIteratee<ResourceServer>,
+  ): Promise<void> {
+    let resourceServerCount: number = 1;
+    let pageNum: number = 0;
+    while (resourceServerCount > 0) {
+      const params = {
+        per_page: 100,
+        page: pageNum,
+      };
+      const { data } = await this.executeAPIRequestWithRetries(
+        ' /api/v2/resource-servers',
+        (params) => this.managementClient.resourceServers.getAll(params),
+        params,
+      );
+      const resourceServers = data as unknown as Array<ResourceServer>;
+      resourceServerCount = resourceServers.length;
+      pageNum = pageNum + 1;
+      for (const server of resourceServers) {
+        await iteratee(server);
+      }
+    }
+  }
+
+  public async iterateRolePermissions(
+    roleId: string,
+    iteratee: ResourceIteratee<Permission>,
+  ): Promise<void> {
+    let permissionCount: number = 1;
+    let pageNum: number = 0;
+    while (permissionCount > 0) {
+      const params = {
+        per_page: 100,
+        page: pageNum,
+        id: roleId,
+      };
+      const { data } = await this.executeAPIRequestWithRetries(
+        '/api/v2/role/permissions',
+        (params) => this.managementClient.roles.getPermissions(params),
+        params,
+      );
+      const permissions = data as unknown as Array<Permission>;
+      permissionCount = permissions.length;
+      pageNum = pageNum + 1;
+      for (const permission of permissions) {
+        await iteratee(permission);
       }
     }
   }

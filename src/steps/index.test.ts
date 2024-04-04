@@ -1,5 +1,6 @@
 import {
   createMockStepExecutionContext,
+  executeStepWithDependencies,
   Recording,
 } from '@jupiterone/integration-sdk-testing';
 jest.setTimeout(100_000);
@@ -7,9 +8,10 @@ jest.setTimeout(100_000);
 import { IntegrationConfig } from '../config';
 import { fetchUsers } from './users';
 import { fetchAccountDetails } from './account';
-import { integrationConfig } from '../../test/config';
+import { getStepTestConfigForStep, integrationConfig } from '../../test/config';
 import { fetchClients } from './clients';
 import { setupAuth0Recording } from '../../test/recording';
+import { Steps } from '../constants/constants';
 
 let recording: Recording;
 
@@ -107,3 +109,51 @@ test('should collect data', async () => {
     },
   });
 });
+
+test(
+  Steps.ROLES,
+  async () => {
+    const stepTestConfig = getStepTestConfigForStep(Steps.ROLES);
+
+    recording = setupAuth0Recording({
+      directory: __dirname,
+      name: Steps.ROLES,
+    });
+
+    const stepResults = await executeStepWithDependencies(stepTestConfig);
+    expect(stepResults).toMatchStepMetadata(stepTestConfig);
+  },
+  10_000,
+);
+test(
+  Steps.SERVERS,
+  async () => {
+    const stepTestConfig = getStepTestConfigForStep(Steps.SERVERS);
+
+    recording = setupAuth0Recording({
+      directory: __dirname,
+      name: Steps.SERVERS,
+    });
+
+    const stepResults = await executeStepWithDependencies(stepTestConfig);
+    expect(stepResults).toMatchStepMetadata(stepTestConfig);
+  },
+  10_000,
+);
+test(
+  Steps.BUILD_ROLE_RELATIONSHIPS,
+  async () => {
+    const stepTestConfig = getStepTestConfigForStep(
+      Steps.BUILD_ROLE_RELATIONSHIPS,
+    );
+
+    recording = setupAuth0Recording({
+      directory: __dirname,
+      name: Steps.BUILD_ROLE_RELATIONSHIPS,
+    });
+
+    const stepResults = await executeStepWithDependencies(stepTestConfig);
+    expect(stepResults).toMatchStepMetadata(stepTestConfig);
+  },
+  10_000,
+);

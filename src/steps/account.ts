@@ -6,9 +6,12 @@ import {
 
 import { IntegrationConfig } from '../config';
 import { getAcctWeblink } from '../util/getAcctWeblink';
-
-export const DATA_ACCOUNT_ENTITY = 'DATA_ACCOUNT_ENTITY';
-export const ACCOUNT_ENTITY_TYPE = 'auth0_account';
+import {
+  ACCOUNT_ENTITY_TYPE,
+  Auth0Entities,
+  DATA_ACCOUNT_ENTITY,
+  Steps,
+} from '../constants/constants';
 
 export async function fetchAccountDetails({
   instance,
@@ -25,7 +28,7 @@ export async function fetchAccountDetails({
         assign: {
           _key: `auth0-account:${instance.id}`,
           _type: ACCOUNT_ENTITY_TYPE,
-          _class: 'Account',
+          _class: Auth0Entities.AUTH0_ACCOUNT._class,
           name: 'Auth0 Account',
           displayName: 'Auth0 Account',
           webLink: webLink,
@@ -39,15 +42,9 @@ export async function fetchAccountDetails({
 
 export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: 'fetch-account',
+    id: Steps.ACCOUNTS,
     name: 'Fetch Account Details',
-    entities: [
-      {
-        resourceName: 'Auth0 Account',
-        _type: ACCOUNT_ENTITY_TYPE,
-        _class: 'Account',
-      },
-    ],
+    entities: [Auth0Entities.AUTH0_ACCOUNT],
     relationships: [],
     dependsOn: [],
     executionHandler: fetchAccountDetails,

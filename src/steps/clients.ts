@@ -10,7 +10,12 @@ import {
 import { createAPIClient } from '../client';
 import { IntegrationConfig } from '../config';
 import { createClientEntity } from '../converters';
-import { DATA_ACCOUNT_ENTITY } from './account';
+import {
+  Auth0Entities,
+  Auth0Relationships,
+  DATA_ACCOUNT_ENTITY,
+  Steps,
+} from '../constants/constants';
 
 export async function fetchClients({
   instance,
@@ -20,6 +25,7 @@ export async function fetchClients({
   const apiClient = createAPIClient(instance.config, logger);
 
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
+
   try {
     await apiClient.iterateClients(async (client) => {
       const {
@@ -64,24 +70,11 @@ export async function fetchClients({
 
 export const clientSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: 'fetch-clients',
+    id: Steps.CLIENTS,
     name: 'Fetch Clients',
-    entities: [
-      {
-        resourceName: 'Auth0 Client',
-        _type: 'auth0_client',
-        _class: 'Application',
-      },
-    ],
-    relationships: [
-      {
-        _type: 'auth0_account_has_client',
-        _class: RelationshipClass.HAS,
-        sourceType: 'auth0_account',
-        targetType: 'auth0_client',
-      },
-    ],
-    dependsOn: ['fetch-account'],
+    entities: [Auth0Entities.AUTH0_CLIENT],
+    relationships: [Auth0Relationships.ACCOUNT_HAS_CLIENT],
+    dependsOn: [Steps.ACCOUNTS],
     executionHandler: fetchClients,
   },
 ];

@@ -10,7 +10,12 @@ import {
 import { createAPIClient } from '../client';
 import { IntegrationConfig } from '../config';
 import { createUserEntity } from '../converters';
-import { DATA_ACCOUNT_ENTITY } from './account';
+import {
+  Auth0Entities,
+  Auth0Relationships,
+  DATA_ACCOUNT_ENTITY,
+  Steps,
+} from '../constants/constants';
 
 export async function fetchUsers({
   instance,
@@ -54,24 +59,11 @@ export async function fetchUsers({
 
 export const userSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: 'fetch-users',
+    id: Steps.USERS,
     name: 'Fetch Users',
-    entities: [
-      {
-        resourceName: 'User',
-        _type: 'auth0_user',
-        _class: 'User',
-      },
-    ],
-    relationships: [
-      {
-        _type: 'auth0_account_has_user',
-        _class: RelationshipClass.HAS,
-        sourceType: 'auth0_account',
-        targetType: 'auth0_user',
-      },
-    ],
-    dependsOn: ['fetch-account'],
+    entities: [Auth0Entities.AUTH0_USER],
+    relationships: [Auth0Relationships.ACCOUNT_HAS_USER],
+    dependsOn: [Steps.ACCOUNTS],
     executionHandler: fetchUsers,
   },
 ];
