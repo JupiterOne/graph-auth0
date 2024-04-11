@@ -1,3 +1,15 @@
+# v0.8.2 (Thu Apr 11 2024)
+
+#### 🐛 Bug Fix
+
+- Added logs and 429 handling [#59](https://github.com/JupiterOne/graph-auth0/pull/59) (gonzaloavalosribas@Gonzalos-MacBook-Pro.local)
+
+#### Authors: 1
+
+- Gonzalo Avalos Ribas ([@Gonzalo-Avalos-Ribas](https://github.com/Gonzalo-Avalos-Ribas))
+
+---
+
 # v0.8.1 (Thu Apr 11 2024)
 
 #### 🐛 Bug Fix
