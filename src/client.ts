@@ -129,6 +129,8 @@ export class APIClient {
           };
           if (errorProps.status == 429) {
             this.logger.warn({ err }, '429 found.');
+            // https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy
+            // 10 seconds should be more than enough. We could also use the x-retry-after header
             await this.sleep(10000);
             return;
           }
