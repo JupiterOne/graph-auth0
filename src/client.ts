@@ -104,7 +104,9 @@ export class APIClient {
       query = `created_at:[${lastCreatedAt} TO ${dateNow}]`;
     } while (totalAmount === 1000);
   }
-
+  private sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
   private executeAPIRequestWithRetries<T>(
     endpoint: string,
     requestFunc: (params) => Promise<T>,
@@ -119,15 +121,20 @@ export class APIClient {
         delay: 30_000,
         factor: 2,
         timeout: 180_000,
-        handleError: (err, attemptContext) => {
+        handleError: async (err, attemptContext) => {
           const errorProps = {
             status: err.statusCode,
             statusText: err.error,
             endpoint: endpoint,
           };
-
+          if (errorProps.status == 429) {
+            this.logger.warn({ err }, '429 found.');
+            await this.sleep(10000);
+            return;
+          }
           if (errorProps.status >= 400 && errorProps.status < 500) {
             attemptContext.abort();
+            this.logger.warn({ err }, 'Aborting wont retry.');
             throw new IntegrationProviderAPIError(errorProps);
           }
         },
