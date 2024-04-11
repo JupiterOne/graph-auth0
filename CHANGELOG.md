@@ -1,3 +1,15 @@
+# v0.8.1 (Thu Apr 11 2024)
+
+#### 🐛 Bug Fix
+
+- Added fix for roleId [#58](https://github.com/JupiterOne/graph-auth0/pull/58) (gonzaloavalosribas@Gonzalos-MacBook-Pro.local)
+
+#### Authors: 1
+
+- Gonzalo Avalos Ribas ([@Gonzalo-Avalos-Ribas](https://github.com/Gonzalo-Avalos-Ribas))
+
+---
+
 # v0.8.0 (Thu Apr 04 2024)
 
 #### 🚀 Enhancement
