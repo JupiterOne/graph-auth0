@@ -167,9 +167,9 @@ export class APIClient {
   ): Promise<void> {
     await this.paginate({
       iteratee,
-      url: '/api/v2/role/users',
+      url: `/api/v2/role/${encodeURIComponent(roleId)}/users`,
       requestFunc: (params) => this.managementClient.roles.getUsers(params),
-      params: { id: roleId },
+      params: { id: encodeURIComponent(roleId) },
     });
   }
 
@@ -190,10 +190,10 @@ export class APIClient {
   ): Promise<void> {
     await this.paginate({
       iteratee,
-      url: '/api/v2/role/permissions',
+      url: `/api/v2/role/${encodeURIComponent(roleId)}/permissions`,
       requestFunc: (params) =>
         this.managementClient.roles.getPermissions(params),
-      params: { id: roleId },
+      params: { id: encodeURIComponent(roleId) },
     });
   }
 
