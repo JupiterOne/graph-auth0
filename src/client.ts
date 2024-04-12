@@ -257,10 +257,7 @@ export class APIClient {
     params?: Record<string, any>;
     entityName: string;
   }) {
-    const processRequest = async (
-      currentPage: number,
-      next: string | undefined,
-    ) => {
+    const processRequest = async (next: string | undefined) => {
       const { data } = await this.executeAPIRequestWithRetries(
         url,
         requestFunc,
@@ -278,10 +275,8 @@ export class APIClient {
     };
 
     let response: any;
-    let currentPage = 0;
     do {
-      response = await processRequest(currentPage, response?.next);
-      currentPage++;
+      response = await processRequest(response?.next);
     } while (response?.next);
   }
 }
