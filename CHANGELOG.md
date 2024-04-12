@@ -1,3 +1,15 @@
+# v0.8.3 (Fri Apr 12 2024)
+
+#### 🐛 Bug Fix
+
+- Int 10652 pagination [#60](https://github.com/JupiterOne/graph-auth0/pull/60) (gonzaloavalosribas@Gonzalos-MacBook-Pro.local)
+
+#### Authors: 1
+
+- Gonzalo Avalos Ribas ([@Gonzalo-Avalos-Ribas](https://github.com/Gonzalo-Avalos-Ribas))
+
+---
+
 # v0.8.2 (Thu Apr 11 2024)
 
 #### 🐛 Bug Fix
