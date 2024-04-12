@@ -18,7 +18,8 @@ import { retry } from '@lifeomic/attempt';
 import { ApiResponse } from './types/clients';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
-
+const SLEEP_TIME = 10000;
+const PER_PAGE = 100;
 /**
  * An APIClient maintains authentication state and provides an interface to
  * third party data APIs.
@@ -131,7 +132,7 @@ export class APIClient {
             this.logger.warn({ err }, '429 found.');
             // https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy
             // 10 seconds should be more than enough. We could also use the x-retry-after header
-            await this.sleep(10000);
+            await this.sleep(SLEEP_TIME);
             return;
           }
           if (errorProps.status >= 400 && errorProps.status < 500) {
@@ -174,11 +175,12 @@ export class APIClient {
     roleId: string,
     iteratee: ResourceIteratee<GetMembers200ResponseOneOfInner>,
   ): Promise<void> {
-    await this.paginate({
+    await this.paginateWithCheckpoint({
       iteratee,
       url: `/api/v2/role/${encodeURIComponent(roleId)}/users`,
       requestFunc: (params) => this.managementClient.roles.getUsers(params),
       params: { id: encodeURIComponent(roleId) },
+      entityName: 'users',
     });
   }
 
@@ -223,7 +225,7 @@ export class APIClient {
         requestFunc,
         {
           ...(params && { ...params }),
-          per_page: 100,
+          per_page: PER_PAGE,
           page: currentPage,
         },
       );
@@ -240,6 +242,42 @@ export class APIClient {
       response = await processRequest(currentPage);
       currentPage++;
     } while (response.length > 0);
+  }
+
+  private async paginateWithCheckpoint<T, U>({
+    iteratee,
+    url,
+    requestFunc,
+    params,
+    entityName,
+  }: {
+    iteratee: ResourceIteratee<T>;
+    url: string;
+    requestFunc: (params) => Promise<ApiResponse<U>>;
+    params?: Record<string, any>;
+    entityName: string;
+  }) {
+    const processRequest = async (next: string | undefined) => {
+      const { data } = await this.executeAPIRequestWithRetries(
+        url,
+        requestFunc,
+        {
+          ...(params && { ...params }),
+          take: PER_PAGE,
+          from: next,
+        },
+      );
+      const items = data[entityName] as unknown as Array<T>;
+      for (const item of items) {
+        await iteratee(item);
+      }
+      return data;
+    };
+
+    let response: any;
+    do {
+      response = await processRequest(response?.next);
+    } while (response?.next);
   }
 }
 
