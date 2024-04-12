@@ -1,6 +1,6 @@
 {
   "name": "@jupiterone/graph-auth0",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "A JupiterOne Integration for https://auth0.com/",
   "repository": {
     "type": "git",
